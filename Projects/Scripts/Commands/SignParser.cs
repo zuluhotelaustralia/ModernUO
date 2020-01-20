@@ -116,10 +116,6 @@ namespace Server.Commands
         m_ItemID = itemID;
         m_Map = mapLoc;
       }
-      public SignEntry()
-      {
-
-      }
     }
   }
 }
