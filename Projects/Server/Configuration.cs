@@ -18,6 +18,9 @@ namespace Server
     [JsonPropertyName("emailSettings")]
     public EmailSettings emailSettings { get; set; } = new EmailSettings();
 
+    [JsonPropertyName("dataDB")]
+    public string dataDB { get; set; } = @"data.db";
+
     private static string FilePath => Path.Join(Core.BaseDirectory, "modernuo.json");
 
     private static void PromptDataDirectories(Configuration config)

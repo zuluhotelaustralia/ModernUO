@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using LiteDB;
 using Server.Items;
 
 namespace Server.Commands
@@ -22,29 +23,14 @@ namespace Server.Commands
 
     public static void Parse(Mobile from)
     {
-      string cfg = Path.Combine(Core.BaseDirectory, "Data/signs.cfg");
+      LiteCollection<SignEntry> signs;
+      from.SendMessage("Generating signs, please wait.");
 
-      if (File.Exists(cfg))
+      try
       {
-        List<SignEntry> list = new List<SignEntry>();
-        from.SendMessage("Generating signs, please wait.");
-
-        using (StreamReader ip = new StreamReader(cfg))
+        using (var db = new LiteDatabase(Configuration.Instance.dataDB))
         {
-          string line;
-
-          while ((line = ip.ReadLine()) != null)
-          {
-            string[] split = line.Split(' ');
-
-            SignEntry e = new SignEntry(
-              line.Substring(split[0].Length + 1 + split[1].Length + 1 + split[2].Length + 1 +
-                             split[3].Length + 1 + split[4].Length + 1),
-              new Point3D(Utility.ToInt32(split[2]), Utility.ToInt32(split[3]), Utility.ToInt32(split[4])),
-              Utility.ToInt32(split[1]), Utility.ToInt32(split[0]));
-
-            list.Add(e);
-          }
+          signs = db.GetCollection<SignEntry>("signs");
         }
 
         Map[] brit = { Map.Felucca, Map.Trammel };
@@ -54,11 +40,9 @@ namespace Server.Commands
         Map[] malas = { Map.Malas };
         Map[] tokuno = { Map.Tokuno };
 
-        for (int i = 0; i < list.Count; ++i)
+        foreach (var sign in signs.FindAll())
         {
-          SignEntry e = list[i];
-
-          var maps = e.m_Map switch
+          var maps = sign.m_Map switch
           {
             0 => brit,
             1 => fel,
@@ -70,14 +54,14 @@ namespace Server.Commands
           };
 
           for (int j = 0; maps?.Length > j; ++j)
-            Add_Static(e.m_ItemID, e.m_Location, maps[j], e.m_Text);
-        }
+            Add_Static(sign.m_ItemID, sign.m_Location, maps[j], sign.m_Text);
 
+        }
         from.SendMessage("Sign generating complete.");
       }
-      else
+      catch (LiteException ex)
       {
-        from.SendMessage("{0} not found!", cfg);
+        throw ex;
       }
     }
 
@@ -119,10 +103,11 @@ namespace Server.Commands
 
     private class SignEntry
     {
-      public int m_ItemID;
-      public Point3D m_Location;
-      public int m_Map;
-      public string m_Text;
+      public int m_id { get; set; }
+      public int m_ItemID { get; set; }
+      public Point3D m_Location { get; set; }
+      public int m_Map { get; set; }
+      public string m_Text { get; set; }
 
       public SignEntry(string text, Point3D pt, int itemID, int mapLoc)
       {
@@ -130,6 +115,10 @@ namespace Server.Commands
         m_Location = pt;
         m_ItemID = itemID;
         m_Map = mapLoc;
+      }
+      public SignEntry()
+      {
+
       }
     }
   }
