@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using LiteDB;
 using Server.Items;
+using Server.Misc;
 
 namespace Server.Commands
 {
@@ -28,7 +29,7 @@ namespace Server.Commands
 
       try
       {
-        using (var db = new LiteDatabase(Configuration.Instance.dataDB))
+        using (var db = Database.Instance)
         {
           signs = db.GetCollection<SignEntry>("signs");
         }
@@ -115,6 +116,10 @@ namespace Server.Commands
         m_Location = pt;
         m_ItemID = itemID;
         m_Map = mapLoc;
+      }
+      public SignEntry()
+      {
+
       }
     }
   }
