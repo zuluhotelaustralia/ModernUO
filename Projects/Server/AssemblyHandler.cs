@@ -132,33 +132,33 @@ namespace Server
       m_Types = asm?.GetTypes() ?? Type.EmptyTypes;
 
       var nameMap = new Dictionary<string, HashSet<int>>();
-      HashSet<int> refs;
-      Action<int, string> addToRefs = (index, key) =>
+
+      void AddToRefs(int index, string key)
       {
-        if (nameMap.TryGetValue(key, out refs))
+        if (nameMap.TryGetValue(key, out var refs))
         {
           refs.Add(index);
         }
         else
         {
-          refs = new HashSet<int> { index };
+          refs = new HashSet<int> {index};
           nameMap.Add(key, refs);
         }
-      };
+      }
 
       var aliasType = typeof(TypeAliasAttribute);
       for (var i = 0; i < m_Types.Length; i++)
       {
         var current = m_Types[i];
-        addToRefs(i, current.Name);
-        addToRefs(i, current.Name.ToLower());
-        addToRefs(i, current.FullName);
-        addToRefs(i, current.FullName?.ToLower());
+        AddToRefs(i, current.Name);
+        AddToRefs(i, current.Name.ToLower());
+        AddToRefs(i, current.FullName);
+        AddToRefs(i, current.FullName?.ToLower());
         if (current.GetCustomAttribute(aliasType, false) is TypeAliasAttribute alias)
           for (var j = 0; j < alias.Aliases.Length; j++)
           {
-            addToRefs(i, alias.Aliases[j]);
-            addToRefs(i, alias.Aliases[j].ToLower());
+            AddToRefs(i, alias.Aliases[j]);
+            AddToRefs(i, alias.Aliases[j].ToLower());
           }
       }
 
