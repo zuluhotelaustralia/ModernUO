@@ -2,7 +2,7 @@
  * ModernUO                                                              *
  * Copyright (C) 2019-2020 - ModernUO Development Team                   *
  * Email: hi@modernuo.com                                                *
- * File: MapPackets.cs - Created: 2020/05/03 - Updated: 2020/05/08       *
+ * File: MapPackets.cs - Created: 2020/05/03 - Updated: 2020/06/24       *
  *                                                                       *
  * This program is free software: you can redistribute it and/or modify  *
  * it under the terms of the GNU General Public License as published by  *
@@ -27,7 +27,7 @@ namespace Server.Network
     {
       EnsureCapacity(9 + 4 * 8);
 
-      Stream.Write((short)0x0018);
+      Stream.Write((short)0x18);
 
       Stream.Write(4);
 
@@ -49,6 +49,17 @@ namespace Server.Network
   {
     public InvalidMapEnable() : base(0xC6, 1)
     {
+    }
+  }
+
+  public sealed class MapChange : Packet
+  {
+    public MapChange(Map map) : base(0xBF)
+    {
+      EnsureCapacity(6);
+
+      Stream.Write((short)0x08);
+      Stream.Write((byte)map.MapID);
     }
   }
 }

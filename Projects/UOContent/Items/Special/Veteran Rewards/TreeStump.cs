@@ -109,6 +109,7 @@ namespace Server.Items
           };
 
           int amount = Math.Min(10, m_Logs);
+          // ReSharper disable once PossibleNullReferenceException
           logs.Amount = amount;
 
           if (!from.PlaceInBackpack(logs))
