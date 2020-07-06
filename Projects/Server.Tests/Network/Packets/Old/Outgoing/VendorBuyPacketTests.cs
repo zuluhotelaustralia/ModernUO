@@ -4,11 +4,16 @@ using System.Linq;
 using Server.Items;
 using Server.Network;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Server.Tests.Network.Packets
 {
   public class VendorBuyPacketTests : IClassFixture<ServerFixture>
   {
+    private readonly ITestOutputHelper m_TestOutputHelper;
+
+    public VendorBuyPacketTests(ITestOutputHelper testOutputHelper) => m_TestOutputHelper = testOutputHelper;
+
     [Fact]
     public void TestVendorBuyContent()
     {
@@ -28,7 +33,7 @@ namespace Server.Tests.Network.Packets
       int pos = 0;
 
       ((byte)0x3C).CopyTo(ref pos, expectedData); // Packet ID
-      ((ushort)expectedData.Length).CopyTo(ref pos, expectedData); // Length
+      ((ushort)expectedData.Length).CopyTo(expectedData.Slice(pos, 2)); // Length
       ((ushort)buyStates.Count).CopyTo(ref pos, expectedData); // Count
 
       for (int i = buyStates.Count - 1; i >= 0; i--)
